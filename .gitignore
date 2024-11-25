@@ -1,0 +1,7 @@
+build/
+imgui-build/
+imgui-src/
+lib/
+opengl-objects/
+glad.c
+imgui.ini
