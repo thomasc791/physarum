@@ -1,12 +1,12 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "../imgui-src/imgui.h"
-#include "../imgui-src/imgui_impl_glfw.h"
-#include "../imgui-src/imgui_impl_opengl3.h"
-#include "../opengl-objects/computeShader.h"
-#include "../opengl-objects/shader.h"
-#include "../opengl-objects/shaderStorageBuffer.h"
+#include "../opengl/imgui-src/imgui.h"
+#include "../opengl/imgui-src/imgui_impl_glfw.h"
+#include "../opengl/imgui-src/imgui_impl_opengl3.h"
+#include "../opengl/opengl-objects/computeShader.h"
+#include "../opengl/opengl-objects/shader.h"
+#include "../opengl/opengl-objects/shaderStorageBuffer.h"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

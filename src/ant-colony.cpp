@@ -3,14 +3,13 @@
 // ====================================================================================================================================================
 #include "ant-colony.h"
 
-#include "../imgui-src/imgui.h"
-#include "../imgui-src/imgui_impl_glfw.h"
-
-#include "../opengl-objects/computeShader.h"
-#include "../opengl-objects/framebuffer.h"
-#include "../opengl-objects/shader.h"
-#include "../opengl-objects/shaderStorageBuffer.h"
-#include "../opengl-objects/texture.h"
+#include "../opengl/imgui-src/imgui.h"
+#include "../opengl/imgui-src/imgui_impl_glfw.h"
+#include "../opengl/opengl-objects/computeShader.h"
+#include "../opengl/opengl-objects/framebuffer.h"
+#include "../opengl/opengl-objects/shader.h"
+#include "../opengl/opengl-objects/shaderStorageBuffer.h"
+#include "../opengl/opengl-objects/texture.h"
 
 #include <array>
 #include <chrono>
