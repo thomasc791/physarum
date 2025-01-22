@@ -7,7 +7,6 @@
 #include "../opengl/imgui-src/imgui_impl_glfw.h"
 #include "../opengl/opengl-objects/computeShader.h"
 #include "../opengl/opengl-objects/framebuffer.h"
-#include "../opengl/opengl-objects/shader.h"
 #include "../opengl/opengl-objects/shaderStorageBuffer.h"
 #include "../opengl/opengl-objects/texture.h"
 
@@ -34,7 +33,7 @@ const unsigned int TEXTURE_WIDTH = 1920, TEXTURE_HEIGHT = 1080;
 
 int WINDOW_WIDTH, WINDOW_HEIGHT;
 
-const unsigned int numAnts = 1024 * 500;
+const unsigned int numAnts = 1024 * 2000;
 const int radius = 200;
 
 int main() {
@@ -74,7 +73,6 @@ int main() {
       "/" + std::filesystem::path(__FILE__).parent_path().string();
 
   // Shader creation
-  Shader shader(project, "vertexShader.vs.glsl", "fragmentShader.fs.glsl");
   ComputeShader moveAntShader(project, "moveAnts");
   ComputeShader drawAntImage(project, "drawAntImage");
 
@@ -110,7 +108,7 @@ int main() {
                   rand() / (float)RAND_MAX * TEXTURE_HEIGHT - 10};
     // ant[i].dir = a + M_PI;
     ant[i].dir = rand() / (float)RAND_MAX * 2 * M_PI;
-    ant[i].color = {0.0, 0.0, 0.0, 1.0};
+    ant[i].color = {1.0, 0.0, 0.0, 1.0};
     ant[i].u = 0.0;
   }
 
@@ -134,7 +132,7 @@ int main() {
   double totTime;
   size_t it = 0;
   bool runIt = true;
-  bool pause = true;
+  bool pause = false;
   // render loop
   // -----------
   while (!glfwWindowShouldClose(window)) {
@@ -167,9 +165,9 @@ int main() {
       static char shaderFile[32] = "moveAnts";
       ImGui::SliderInt("SimSpeed", &simSpeed, 100, 0);
       ImGui::SliderFloat("Velocity", &vel, 0, 1.0);
-      ImGui::SliderFloat("Look ahead", &dist, 0, 20);
-      ImGui::SliderFloat("Angle", &angle, 0, 20);
-      ImGui::SliderFloat("Turning angle", &turnAngle, 0, 10);
+      ImGui::SliderFloat("Look ahead", &dist, 0, 40);
+      ImGui::SliderFloat("Angle", &angle, 0, 40);
+      ImGui::SliderFloat("Turning angle", &turnAngle, 0, 30);
       if (ImGui::Button("||")) {
         pause = true;
         runIt = false;
@@ -239,7 +237,6 @@ int main() {
       glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      texCS.unbindTexture();
       runIt = pause ? false : true;
     }
 

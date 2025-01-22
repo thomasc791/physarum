@@ -16,9 +16,9 @@
 #include <iostream>
 
 struct Ant {
-  glm::vec2 pos;
   float dir;
   float u;
+  glm::vec2 pos;
   glm::vec4 color;
 };
 

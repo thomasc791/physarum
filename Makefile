@@ -1,7 +1,13 @@
 CPP = clang++
 C = clang
 
-ANT_FILES = ant-colony
+PROJECT_FILES = ant-colony
+
+FILES = shader \
+				computeShader \
+				framebuffer \
+				shaderStorageBuffer \
+				texture
 
 LIBFILES = glad
 
@@ -22,26 +28,52 @@ FLAGS = -std=c++20 \
 SRC_DIR = src
 BUILD_DIR = build
 OPENGL_DIR = opengl
+OPENGL_LIB_DIR = $(OPENGL_DIR)/lib
+OPENGL_BUILD_DIR = $(OPENGL_DIR)/build
+OPENGL_IMGUI_DIR = $(OPENGL_DIR)/imgui-src
+OPENGL_IMGUI_BUILD = $(OPENGL_DIR)/imgui-build
+OPENGL_OBJECTS_DIR = $(OPENGL_DIR)/opengl-objects
 
-BD_O = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(FILES)))
-ANT_O = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(ANT_FILES)))
-ANT_CPP = $(addprefix $(SRC_DIR)/, $(addsuffix .cpp, $(ANT_FILES)))
+OPENGL_IMGUI = $(shell find $(OPENGL_IMGUI_DIR) -name '*.cpp' | xargs -I {} basename {} | sed 's/.cpp//')
+OPENGL_LIB_O = $(addprefix $(OPENGL_LIB_DIR)/, $(addsuffix .o, $(LIBFILES)))
+OPENGL_BUILD_O = $(addprefix $(OPENGL_BUILD_DIR)/, $(addsuffix .o, $(FILES)))
+PROJECT_O = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(PROJECT_FILES)))
+PROJECT_CPP = $(addprefix $(SRC_DIR)/, $(addsuffix .cpp, $(PROJECT_FILES)))
+OPENGL_IMGUI_FILES = $(addprefix $(OPENGL_IMGUI_DIR)/, $(addsuffix .cpp, $(OPENGL_IMGUI)))
+OPENGL_IMGUI_O = $(addprefix $(OPENGL_IMGUI_BUILD)/, $(addsuffix .o, $(OPENGL_IMGUI)))
 
-all: ant
+all: lib imgui opengl ant-colony
 
-$(BUILD_DIR)/%.o: %.cpp
+$(OPENGL_BUILD_DIR)/%.o: %.cpp
 	$(CPP) -g -c $^ -std=c++20 -o $@
 
-$(ANT_O): $(ANT_CPP)
-	mkdir -p build
+$(PROJECT_O): $(PROJECT_CPP)
 	$(CPP) -g -c $^ -std=c++20 -o $@
 
-ant: $(ANT_O) $(BD_O)
-	$(CPP) $^ $(IMGUI_O)  $(FLAGS) -o $(BUILD_DIR)/$@
+ant-colony: $(PROJECT_O) $(BUILD_O)
+	$(CPP) $^ $(OPENGL_IMGUI_O) $(OPENGL_BUILD_O)  $(FLAGS) -o $(BUILD_DIR)/$@
 
+opengl: $(OPENGL_BUILD_O)
 
+imgui: $(OPENGL_IMGUI_O)
+
+$(OPENGL_IMGUI_O): $(OPENGL_IMGUI_BUILD)/%.o: $(OPENGL_IMGUI_DIR)/%.cpp
+	mkdir -p ./$(OPENGL_IMGUI_BUILD)
+	$(CPP) -g -c $< -std=c++20 -o $@
+
+lib: $(OPENGL_LIB_O)
+	$(C) $^ -shared -o /usr/local/lib/lib$(LIBFILES).so
+
+$(OPENGL_LIB_O): $(OPENGL_DIR)/$(LIBFILES).c
+	mkdir -p ./$(OPENGL_LIB_DIR)
+	$(C) -c -fPIC $^ -o $(OPENGL_LIB_DIR)/$(LIBFILES).o
+
+$(OPENGL_BUILD_O): $(OPENGL_BUILD_DIR)/%.o: $(OPENGL_OBJECTS_DIR)/%.cpp
+	mkdir -p ./$(OPENGL_BUILD_DIR)
+	$(CPP) -g -c $< -std=c++20 -o $@
 
 clean:
-	rm -rf ./$(BUILD_DIR)
-	rm -f core.*
-	rm -rf ./$(LIB_DIR)
+	rm -rf ./$(OPENGL_BUILD_DIR)
+	rm -rf ./$(OPENGL_LIB_DIR)
+	rm -rf ./$(OPENGL_IMGUI_BUILD)
+	rm -f /usr/local/lib/libglad.so

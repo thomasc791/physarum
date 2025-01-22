@@ -3,9 +3,9 @@
 #define pi 3.1415926535897932384626433832795
 
 struct Ant {
-    vec2 pos;
     float dir;
     float u;
+    vec2 pos;
     vec4 color;
 };
 
@@ -80,11 +80,11 @@ void move(inout Ant antCurr, uint curr) {
     bool random = lookLeft >= lookFront && lookRight >= lookFront && !straight;
     bool left = lookLeft > lookFront && lookFront > lookRight && !random || random && (hash(curr * t) > 0.5);
     bool right = lookRight > lookFront && lookFront > lookLeft && !random || random && (hash(curr * t) <= 0.5);
-    antCurr.dir += -turnAngle * (float(int(right)) - float(int(left)));
+    antCurr.dir = mod(antCurr.dir - turnAngle * (float(right) - float(left)), 2 * pi);
     antCurr.pos += (vel * vec2(cos(antCurr.dir), sin(antCurr.dir)));
 
-    bool up = antCurr.dir >= pi;
-    bool down = antCurr.dir <= pi;
+    bool up = antCurr.dir <= pi;
+    bool down = antCurr.dir >= pi;
     antCurr.color.x = float(up);
     antCurr.color.y = float(down);
     // antCurr.color.z = float(int(antCurr.dir * 10)) / (10 * 2 * pi);
