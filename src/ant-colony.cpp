@@ -142,7 +142,7 @@ int main() {
 #ifdef RECORD_VIDEO
   cv::VideoWriter outputVideo;
   int fourcc = cv::VideoWriter::fourcc('H', '2', '6', '4');
-  outputVideo.open("ant-colony.mp4", fourcc, 20.0f,
+  outputVideo.open("ant-colony.mp4", fourcc, 60.0f,
                    cv::Size(WINDOW_WIDTH, WINDOW_HEIGHT), true);
 #endif
   // render loop
