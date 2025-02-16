@@ -85,8 +85,8 @@ void move(inout Ant antCurr, uint curr) {
 
     bool up = antCurr.dir <= pi;
     bool down = antCurr.dir >= pi;
-    antCurr.color.x = float(up);
-    antCurr.color.y = float(down);
+    // antCurr.color.x = float(up);
+    // antCurr.color.y = float(down);
     // antCurr.color.z = float(int(antCurr.dir * 10)) / (10 * 2 * pi);
 }
 

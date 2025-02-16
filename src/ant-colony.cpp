@@ -17,6 +17,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#ifdef RECORD_VIDEO
+#include <opencv2/core/matx.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
+#endif
 #include <string>
 #include <thread>
 #include <vector>
@@ -26,14 +31,14 @@
 #include <glad/glad.h>
 
 // settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 540;
 
-const unsigned int TEXTURE_WIDTH = 1920, TEXTURE_HEIGHT = 1080;
+const unsigned int TEXTURE_WIDTH = 960, TEXTURE_HEIGHT = 540;
 
 int WINDOW_WIDTH, WINDOW_HEIGHT;
 
-const unsigned int numAnts = 1024 * 2000;
+const unsigned int numAnts = 1024 * 1000;
 const int radius = 200;
 
 int main() {
@@ -95,9 +100,9 @@ int main() {
   std::vector<Image> image(TEXTURE_WIDTH * TEXTURE_HEIGHT);
   int simSpeed = 100;
   float vel = 1;
-  float dist = 20;
-  float angle = 15;
-  float turnAngle = 5;
+  float dist = 40;
+  float angle = 10;
+  float turnAngle = 40;
 
   for (size_t i = 0; i < numAnts; i++) {
     float r = std::sqrt(rand() / (float)RAND_MAX * std::pow(radius, 2));
@@ -108,7 +113,7 @@ int main() {
                   rand() / (float)RAND_MAX * TEXTURE_HEIGHT - 10};
     // ant[i].dir = a + M_PI;
     ant[i].dir = rand() / (float)RAND_MAX * 2 * M_PI;
-    ant[i].color = {1.0, 0.0, 0.0, 1.0};
+    ant[i].color = {1.0, 1.0, 1.0, 1.0};
     ant[i].u = 0.0;
   }
 
@@ -133,6 +138,13 @@ int main() {
   size_t it = 0;
   bool runIt = true;
   bool pause = false;
+
+#ifdef RECORD_VIDEO
+  cv::VideoWriter outputVideo;
+  int fourcc = cv::VideoWriter::fourcc('H', '2', '6', '4');
+  outputVideo.open("ant-colony.mp4", fourcc, 20.0f,
+                   cv::Size(WINDOW_WIDTH, WINDOW_HEIGHT), true);
+#endif
   // render loop
   // -----------
   while (!glfwWindowShouldClose(window)) {
@@ -189,7 +201,7 @@ int main() {
       if (ImGui::Button("Recompile Shader")) {
         if (sizeof(shaderFile) / sizeof(shaderFile[0]) < 40) {
           std::cout << "Recompiling script: " << shaderFile << std::endl;
-          shaderInputCallback(drawAntImage, shaderFile);
+          shaderInputCallback(moveAntShader, shaderFile);
         }
       }
       ImGui::InputText("Shader", shaderFile, IM_ARRAYSIZE(shaderFile));
@@ -247,7 +259,23 @@ int main() {
       ImGui::RenderPlatformWindowsDefault();
       glfwMakeContextCurrent(backupCurrentContext);
     }
-
+#ifdef RECORD_VIDEO
+    cv::Mat pixels(WINDOW_HEIGHT, WINDOW_WIDTH, CV_8UC3);
+    glReadPixels(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE,
+                 pixels.data);
+    cv::Mat cv_pixels(WINDOW_HEIGHT, WINDOW_WIDTH, CV_8UC3);
+    for (size_t y = 0; y < WINDOW_HEIGHT; y++) {
+      for (size_t x = 0; x < WINDOW_WIDTH; x++) {
+        cv_pixels.at<cv::Vec3b>(y, x)[2] =
+            pixels.at<cv::Vec3b>(WINDOW_HEIGHT - y - 1, x)[0];
+        cv_pixels.at<cv::Vec3b>(y, x)[1] =
+            pixels.at<cv::Vec3b>(WINDOW_HEIGHT - y - 1, x)[1];
+        cv_pixels.at<cv::Vec3b>(y, x)[0] =
+            pixels.at<cv::Vec3b>(WINDOW_HEIGHT - y - 1, x)[2];
+      }
+    }
+    outputVideo << cv_pixels;
+#endif
     glfwSwapBuffers(window);
 
     std::this_thread::sleep_for(
@@ -265,6 +293,9 @@ int main() {
   // ------------------------------------------------------------------
   glfwDestroyWindow(window);
   glfwTerminate();
+#ifdef RECORD_VIDEO
+  outputVideo.release();
+#endif
   return 0;
 }
 

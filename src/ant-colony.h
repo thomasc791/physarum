@@ -15,6 +15,8 @@
 #include <glm/vec4.hpp>
 #include <iostream>
 
+// #define RECORD_VIDEO
+
 struct Ant {
   float dir;
   float u;
